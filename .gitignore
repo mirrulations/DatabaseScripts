@@ -1,0 +1,11 @@
+.venv
+.env
+
+__pycache__
+
+*.pyc
+
+# add more here
+.pytest_cache
+
+.vscode 
