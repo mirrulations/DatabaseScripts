@@ -8,6 +8,13 @@ import boto3
 import sys
 
 def check_s3_folder(bucket_name, folder_path):
+    """ 
+        * This function will check if a folder exists in a given S3 bucket.
+        * The function will return True if the folder exists, False otherwise.
+        @param bucket_name: The name of the S3 bucket.
+        @param folder_path: The folder path.
+        @return: True if the folder exists, False
+    """
     s3 = boto3.client('s3')
     Parent_Dir = get_parent_folder(folder_path)
     folder_path2 = Parent_Dir + "/" + folder_path
@@ -22,7 +29,12 @@ def check_s3_folder(bucket_name, folder_path):
         print(f"Error accessing bucket '{bucket_name}': {e}")
 
 def get_parent_folder(folder_path):
-
+    """
+        * This function will return the parent folder of a given folder path.
+        * The parent folder is the first part of the folder path that is separated by a non-alphanumeric character.
+        @param folder_path: The folder path.
+        @return: The parent folder of the given folder path.
+    """
     # sometimes the folder path is like "ASC_FRDOC_0001/" and sometimes it is like "ASC-2012-0004/"
     if "-" in folder_path:
         return folder_path.split("-")[0]
