@@ -20,7 +20,9 @@ def copy_s3_folder_boto3(folder):
     """
     # check if the folder exists
     bucket_name = 'mirrulations'
-    check_s3_folder(bucket_name, folder)
+    if not check_s3_folder(bucket_name, folder):
+        raise Exception(f"Folder '{folder}' does not exist in bucket '{bucket_name}'")
+ 
     parent = get_parent_folder(folder)
     folder2 = parent + "/" + folder
 

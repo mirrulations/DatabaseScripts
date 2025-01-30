@@ -1,5 +1,5 @@
 """
-The purpose of this script is to check if a docker exists to copy it from one S3 bucket to another. 
+The purpose of this script is to check if a docket exists to copy it from one S3 bucket to another. 
 
 The script will attempt to utlize the sync command to copy the files.
 AUTHOR: Yousuf Kanan

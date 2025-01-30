@@ -37,5 +37,7 @@ def test_copy_s3_folder_not_exists(mock_boto3_client, folder_name):
     mock_s3 = mock_boto3_client.return_value
     mock_s3.list_objects_v2.return_value = {}
 
-    assert copy_s3_folder_boto3(folder_name) is False
-    
+    with pytest.raises(Exception) as e:
+        copy_s3_folder_boto3(folder_name)
+    assert str(e.value) == f"Folder '{folder_name}' does not exist in bucket 'mirrulations'"
+
