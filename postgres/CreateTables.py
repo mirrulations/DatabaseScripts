@@ -135,7 +135,7 @@ def create_documents_table(conn: psycopg.Connection):
 def main():
     load_dotenv()
 
-    dbname = os.getenv("POSTGRES_DB_NAME")
+    dbname = os.getenv("POSTGRES_DB")
     username = os.getenv("POSTGRES_USERNAME")
     password = os.getenv("POSTGRES_PASSWORD")
     host = os.getenv("POSTGRES_HOST")
