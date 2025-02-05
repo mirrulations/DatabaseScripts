@@ -1,15 +1,13 @@
 .venv
-.vscode
-
-.pytest_cache
+.env
 
 __pycache__
-
-.env
 
 *.pyc
 
 # add more here
+.pytest_cache
 
+.vscode 
 .aws
 
