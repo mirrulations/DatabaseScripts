@@ -6,20 +6,6 @@ import os
 from datetime import datetime
 
 # Fetch database connection parameters from environment variables
-load_dotenv()
-dbname = os.getenv("POSTGRES_DB")
-username = os.getenv("POSTGRES_USERNAME")
-password = os.getenv("POSTGRES_PASSWORD")
-host = os.getenv("POSTGRES_HOST")
-port = os.getenv("POSTGRES_PORT")
-
-conn_params = {
-    "dbname": dbname,
-    "user": username,
-    "password": password,
-    "host": host,
-    "port": port,
-}
 
 
 # Function to parse date fields
@@ -30,7 +16,7 @@ def _parse_date(date_str):
 
 
 # Function to insert docket into the database
-def insert_docket(json_data):
+def insert_docket(conn, json_data):
     # Parse the JSON data
     data = json.loads(json_data)
 
@@ -62,18 +48,17 @@ def insert_docket(json_data):
 
     # Insert into the database
     try:
-        with psycopg.connect(**conn_params) as conn:
-            with conn.cursor() as cursor:
-                insert_query = """
-                INSERT INTO dockets (
-                    docket_id, docket_api_link, agency_id, docket_category, docket_type,
-                    effective_date, flex_field1, flex_field2, modify_date, organization,
-                    petition_nbr, program, rin, short_title, flex_subtype1, flex_subtype2,
-                    docketTitle
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
-                """
-                cursor.execute(insert_query, values)
-                print("Docket inserted successfully.")
+        with conn.cursor() as cursor:
+            insert_query = """
+            INSERT INTO dockets (
+                docket_id, docket_api_link, agency_id, docket_category, docket_type,
+                effective_date, flex_field1, flex_field2, modify_date, organization,
+                petition_nbr, program, rin, short_title, flex_subtype1, flex_subtype2,
+                docket_title
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+            """
+            cursor.execute(insert_query, values)
+            print(f"Docket {docket_id} inserted successfully.")
     except Exception as e:
         print(f"An error occurred: {e}")
 
@@ -85,11 +70,26 @@ def main():
         sys.exit(1)
 
     json_file_path = sys.argv[1]
+    load_dotenv()
+    dbname = os.getenv("POSTGRES_DB")
+    username = os.getenv("POSTGRES_USERNAME")
+    password = os.getenv("POSTGRES_PASSWORD")
+    host = os.getenv("POSTGRES_HOST")
+    port = os.getenv("POSTGRES_PORT")
+
+    conn_params = {
+        "dbname": dbname,
+        "user": username,
+        "password": password,
+        "host": host,
+        "port": port,
+    }
 
     try:
         with open(json_file_path, "r") as json_file:
             json_data = json_file.read()
-            insert_docket(json_data)
+            with psycopg.connect(**conn_params) as conn:
+                insert_docket(conn, json_data)
     except FileNotFoundError:
         print(f"File not found: {json_file_path}")
     except json.JSONDecodeError:

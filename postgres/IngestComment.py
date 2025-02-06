@@ -6,20 +6,6 @@ import os
 from datetime import datetime
 
 # Fetch database connection parameters from environment variables
-load_dotenv()
-dbname = os.getenv("POSTGRES_DB")
-username = os.getenv("POSTGRES_USERNAME")
-password = os.getenv("POSTGRES_PASSWORD")
-host = os.getenv("POSTGRES_HOST")
-port = os.getenv("POSTGRES_PORT")
-
-conn_params = {
-    "dbname": dbname,
-    "user": username,
-    "password": password,
-    "host": host,
-    "port": port,
-}
 
 
 # Function to parse date fields
@@ -30,7 +16,7 @@ def parse_date(date_str):
 
 
 # Function to insert comment into the database
-def insert_comment(json_data):
+def insert_comment(conn, json_data):
     # Parse the JSON data
     data = json.loads(json_data)
 
@@ -80,25 +66,24 @@ def insert_comment(json_data):
 
     # Insert into the database
     try:
-        with psycopg.connect(**conn_params) as conn:
-            with conn.cursor() as cursor:
-                insert_query = """
-                INSERT INTO comments (
-                    comment_id, api_link, document_id, duplicate_comment_count, address1,
-                    address2, agency_id, city, comment_category, comment, country,
-                    docket_id, document_type, email, fax, flex_field1, flex_field2,
-                    first_name, submitter_gov_agency, submitter_gov_agency_type,
-                    last_name, modification_date, submitter_org, phone, posted_date,
-                    postmark_date, reason_withdrawn, received_date, restriction_reason,
-                    restriction_reason_type, state_province_region, comment_subtype,
-                    comment_title, is_withdrawn, postal_code
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                        %s, %s, %s);
-                """
+        with conn.cursor() as cursor:
+            insert_query = """
+            INSERT INTO comments (
+                comment_id, api_link, document_id, duplicate_comment_count, address1,
+                address2, agency_id, city, comment_category, comment, country,
+                docket_id, document_type, email, fax, flex_field1, flex_field2,
+                first_name, submitter_gov_agency, submitter_gov_agency_type,
+                last_name, modification_date, submitter_org, phone, posted_date,
+                postmark_date, reason_withdrawn, received_date, restriction_reason,
+                restriction_reason_type, state_province_region, comment_subtype,
+                comment_title, is_withdrawn, postal_code
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                    %s, %s, %s);
+            """
 
-                cursor.execute(insert_query, values)
-                print("Comment inserted successfully.")
+            cursor.execute(insert_query, values)
+            print(f"Comment {comment_id} inserted successfully.")
     except Exception as e:
         print(f"An error occurred: {e}")
 
@@ -110,11 +95,26 @@ def main():
         sys.exit(1)
 
     json_file_path = sys.argv[1]
+    load_dotenv()
+    dbname = os.getenv("POSTGRES_DB")
+    username = os.getenv("POSTGRES_USERNAME")
+    password = os.getenv("POSTGRES_PASSWORD")
+    host = os.getenv("POSTGRES_HOST")
+    port = os.getenv("POSTGRES_PORT")
+
+    conn_params = {
+        "dbname": dbname,
+        "user": username,
+        "password": password,
+        "host": host,
+        "port": port,
+    }
 
     try:
         with open(json_file_path, "r") as json_file:
             json_data = json_file.read()
-            insert_comment(json_data)
+            with psycopg.connect(**conn_params) as conn:
+                insert_comment(conn, json_data)
     except FileNotFoundError:
         print(f"File not found: {json_file_path}")
     except json.JSONDecodeError:
