@@ -76,7 +76,7 @@ def create_dockets_table(conn: psycopg.Connection):
                     short_title VARCHAR,
                     flex_subtype1 TEXT,
                     flex_subtype2 TEXT,
-                    docketTitle VARCHAR(500)
+                    docket_title VARCHAR(500)
                 );
             """
     _create_table(conn, query, "dockets")
